@@ -17,10 +17,15 @@
   },
   "homepage": "https://github.com/raka-gunarto/leeds-announce-bot#readme",
   "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
     "axios": "^0.21.4",
     "cheerio": "*",
+    "discord-api-types": "^0.23.1",
     "discord.js": "^13.1.0",
-    "node-cron": "^3.0.0"
+    "install": "^0.13.0",
+    "node-cron": "^3.0.0",
+    "npm": "^7.24.1"
   },
   "devDependencies": {
     "eslint": "^7.32.0"
