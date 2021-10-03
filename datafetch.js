@@ -68,13 +68,14 @@ module.exports = {
       for (let module of subscription.modules) modulesToFetch.add(module);
 
     modulesToFetch = Array.from(modulesToFetch);
+    if (modulesToFetch.length == 0) return;
 
     // call API
     try {
       let now = new Date();
       const resp = await axios.get(
         `http://timetable.leeds.ac.uk/teaching/202122/reporting/TextSpreadsheet?objectclass=module&idtype=name&${modulesToFetch
-          .map((x) => `identifier=${x}`)
+          .map((x) => `identifier=${encodeURI(x)}`)
           .join('&')}&template=SWSCUST+module+individual+links&days=${
           process.env.TEST ? '1-7' : now.getDay()
         }&periods=1-30&weeks=${Math.ceil(
