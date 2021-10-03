@@ -64,8 +64,8 @@ module.exports = {
     console.log('[*] Fetching timetable events...');
     // fetch all subscribed modules only
     let modulesToFetch = new Set();
-    for (let modules of Object.values(global.subscriptions))
-      for (let module of modules) modulesToFetch.add(module);
+    for (let subscription of Object.values(global.subscriptions))
+      for (let module of subscription.modules) modulesToFetch.add(module);
 
     modulesToFetch = Array.from(modulesToFetch);
 
