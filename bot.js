@@ -5,7 +5,6 @@ const client = new Discord.Client({
 global.client = client;
 const config = require('./config.json');
 client.login(config.token);
-
 const { REST } = require('@discordjs/rest');
 const rest = new REST({ version: 9 }).setToken(config.token);
 const { Routes } = require('discord-api-types/v9');
@@ -116,6 +115,10 @@ client.on('guildCreate', (guild) => {
 
 client.on('interactionCreate', (interaction) => {
   if (!interaction.isCommand()) return;
+  if (!global.subscriptions)
+    return interaction.reply(
+      'Bot not ready yet, please try again in a few minutes'
+    );
   const subscription = global.subscriptions[interaction.guildId];
   switch (interaction.commandName) {
     case 'info':
@@ -128,7 +131,7 @@ client.on('interactionCreate', (interaction) => {
         subscription.channelID
           ? interaction.guild.channels.cache.find(
               (chan) => chan.id === subscription.channelID
-            ).name
+            ).toString()
           : ''
       }
       Per Event Reminders: ${subscription.perEvent}`,
@@ -237,6 +240,10 @@ client.on('interactionCreate', (interaction) => {
         `Channel set to ${interaction.guild.channels.cache.find(
           (c) => c.id === interaction.options.data[0].value
         )}`
+      );
+      fs.writeFileSync(
+        './subscriptions.json',
+        JSON.stringify(global.subscriptions)
       );
       break;
 

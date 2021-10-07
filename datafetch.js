@@ -99,14 +99,27 @@ module.exports = {
       if (global.events) delete global.events;
       global.events = {};
 
+      let moduleName = '';
       $('body>table').each((idx, elem) => {
+        if (elem.attribs.class.includes('header-border-args'))
+          moduleName = $('.header-3-0-7', elem)[0].children[0].data;
         if (!elem.attribs.class.includes('spreadsheet')) return;
         let rows = $('tr', elem).slice(1);
         for (let row of rows) {
           let evt = $('td', row);
           let activityName = evt[0].children[0].data;
-          let start = evt[3].children[0].data;
-          let end = evt[4].children[0].data;
+          let startStr = evt[3].children[0].data.split(':');
+          let start = new Date();
+          start.setHours(startStr[0]);
+          start.setMinutes(startStr[1]);
+          start.setSeconds(0);
+          start.setMilliseconds(0);
+          let endStr = evt[4].children[0].data.split(':');
+          let end = new Date();
+          end.setHours(endStr[0]);
+          end.setMinutes(endStr[1]);
+          end.setSeconds(0);
+          end.setMilliseconds(0);
           let location = evt[5].children[0].data;
           let addInfo = evt[6].children[0].data;
           let addInfo2 = evt[8].children[0].data;
@@ -117,6 +130,7 @@ module.exports = {
             if (!global.events[moduleCode]) global.events[moduleCode] = {};
             global.events[moduleCode][activityName] = {
               activityName,
+              moduleName,
               start,
               end,
               location,
