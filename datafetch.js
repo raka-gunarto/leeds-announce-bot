@@ -123,6 +123,8 @@ module.exports = {
           let location = evt[5].children[0].data;
           let addInfo = evt[6].children[0].data;
           let addInfo2 = evt[8].children[0].data;
+          if (addInfo2.includes('Join the session here'))
+            addInfo2 = addInfo2.split(';')[0].substr(1);
           let type = evt[10].children[0].data;
 
           $('a', evt[1]).each((idx, elem) => {

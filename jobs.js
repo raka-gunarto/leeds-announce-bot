@@ -58,23 +58,14 @@ async function announceTimetable() {
         7
     )}`;
     let fields = [];
-    let lastTime = null;
     for (let evt of evts) {
-      if (!lastTime || lastTime !== evt.start.getTime()) {
-        lastTime = evt.start;
-        fields.push({
-          name: `${evt.start.toLocaleTimeString()}`,
-          value: '\u200b',
-        });
-      }
       fields.push({
-        name: `${evt.moduleName} - ${evt.activityName}`,
+        name: `${evt.start.toLocaleTimeString()} - ${evt.moduleName}`,
         value: dedent`
-        > Type: ${evt.type}
-        > Location: ${evt.location}
-        > Additional Info: 
-        > \t${evt.addInfo}
-        > \t${evt.addInfo2}
+        > ${evt.activityName} - **${evt.type}**
+        > ${evt.location}
+        > ${evt.addInfo} ${'\u200b'}
+        > ${evt.addInfo2} ${'\u200b'}
         `,
       });
     }
