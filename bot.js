@@ -119,6 +119,12 @@ client.on('interactionCreate', (interaction) => {
     return interaction.reply(
       'Bot not ready yet, please try again in a few minutes'
     );
+  if (!global.subscriptions[interaction.guildId])
+    global.subscriptions[interaction.guildId] = {
+      modules: [],
+      channelID: null,
+      perEvent: false,
+    };
   const subscription = global.subscriptions[interaction.guildId];
 
   switch (
@@ -199,28 +205,32 @@ client.on('interactionCreate', (interaction) => {
       break;
     case 'bulksubscribe':
       {
-        let modules = global.modules.filter((m) =>
-          m[2].match(interaction.options.data[0].value)
-        );
-        if (!modules || modules.length === 0)
-          return interaction.reply({
-            content: 'Module not found.',
-          });
-        global.subscriptions[interaction.guildId].modules.push(
-          ...modules.map((m) => m[2])
-        );
-        global.subscriptions[interaction.guildId].modules = Array.from(
-          new Set(subscription.modules)
-        ); // remove duplicates
+        try {
+          let modules = global.modules.filter((m) =>
+            m[2].match(interaction.options.data[0].value)
+          );
+          if (!modules || modules.length === 0)
+            return interaction.reply({
+              content: 'Module not found.',
+            });
+          global.subscriptions[interaction.guildId].modules.push(
+            ...modules.map((m) => m[2])
+          );
+          global.subscriptions[interaction.guildId].modules = Array.from(
+            new Set(subscription.modules)
+          ); // remove duplicates
 
-        fs.writeFileSync(
-          './subscriptions.json',
-          JSON.stringify(global.subscriptions)
-        );
+          fs.writeFileSync(
+            './subscriptions.json',
+            JSON.stringify(global.subscriptions)
+          );
 
-        interaction.reply(
-          `Modules added:\n\t${modules.map((m) => m[0]).join('\n\t')}`
-        );
+          interaction.reply(
+            `Modules added:\n\t${modules.map((m) => m[0]).join('\n\t')}`
+          );
+        } catch (e) {
+          interaction.reply(`An error occured ${e}`);
+        }
       }
       break;
     case 'unsub':
@@ -235,15 +245,19 @@ client.on('interactionCreate', (interaction) => {
       interaction.reply('Modules removed.');
       break;
     case 'bulkunsub':
-      global.subscriptions[interaction.guildId].modules =
-        subscription.modules.filter(
-          (m) => !m[2].match(interaction.options.data[0].value)
+      try {
+        global.subscriptions[interaction.guildId].modules =
+          subscription.modules.filter(
+            (m) => !m[2].match(interaction.options.data[0].value)
+          );
+        fs.writeFileSync(
+          './subscriptions.json',
+          JSON.stringify(global.subscriptions)
         );
-      fs.writeFileSync(
-        './subscriptions.json',
-        JSON.stringify(global.subscriptions)
-      );
-      interaction.reply('Modules removed.');
+        interaction.reply('Modules removed.');
+      } catch (e) {
+        interaction.reply(`An error occured ${e}`);
+      }
       break;
     case 'toggle_per_event':
       global.subscriptions[interaction.guildId].perEvent =

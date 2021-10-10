@@ -106,7 +106,6 @@ async function announceTimetable() {
     global.subscriptions = {};
   }
   await getTimetables();
-  await announceTimetable();
 
   // now set cronjobs
   cron.schedule('0 0 1 9 *', async () => {
