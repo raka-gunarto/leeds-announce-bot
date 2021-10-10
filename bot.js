@@ -120,7 +120,28 @@ client.on('interactionCreate', (interaction) => {
       'Bot not ready yet, please try again in a few minutes'
     );
   const subscription = global.subscriptions[interaction.guildId];
-  switch (interaction.commandName) {
+
+  switch (
+    interaction.commandName // don't really feel like making per file handlers
+  ) {
+    case 'info':
+    case 'search':
+      break;
+    default:
+      if (
+        !interaction.member.roles.cache.find(
+          (role) => role.name === 'leedsbot-manager'
+        )
+      )
+        return interaction.reply({
+          ephemeral: true,
+          content:
+            "You don't have the necessary permissions to run this command.",
+        });
+  }
+  switch (
+    interaction.commandName // don't really feel like making per file handlers
+  ) {
     case 'info':
       interaction.reply({
         ephemeral: true,
@@ -129,9 +150,9 @@ client.on('interactionCreate', (interaction) => {
       Modules Subscribed: ${subscription.modules.join(',')}
       Announce Channel: ${
         subscription.channelID
-          ? interaction.guild.channels.cache.find(
-              (chan) => chan.id === subscription.channelID
-            ).toString()
+          ? interaction.guild.channels.cache
+              .find((chan) => chan.id === subscription.channelID)
+              .toString()
           : ''
       }
       Per Event Reminders: ${subscription.perEvent}`,

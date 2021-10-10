@@ -1,5 +1,7 @@
 const axios = require('axios').default;
 const cheerio = require('cheerio');
+const cron = require('node-cron');
+const dedent = require('dedent');
 
 module.exports = {
   getDetails: async () => {
@@ -140,6 +142,84 @@ module.exports = {
               addInfo2,
               type,
             };
+
+            // create a cronjob for per event reminders
+            if (start <= new Date()) return;
+            let task = cron.schedule(
+              `${start.getMinutes()} ${start.getHours()} ${start.getDate()} ${
+                start.getMonth() + 1
+              } *`,
+              () => {
+                for (let [guildID, subscription] of Object.entries(
+                  global.subscriptions
+                ))
+                  if (
+                    subscription.modules.includes(moduleCode) &&
+                    subscription.perEvent
+                  ) {
+                    let announceChannel = null;
+                    if (subscription.channelID) {
+                      let savedChannel = global.client.guilds.cache
+                        .get(guildID)
+                        .channels.cache.get(subscription.channelID);
+                      if (savedChannel.type === 'GUILD_TEXT')
+                        announceChannel = savedChannel;
+                    } else {
+                      for (let channel of Object.values(
+                        global.client.guilds.cache
+                          .get(guildID)
+                          .channels.cache.values()
+                      ))
+                        if (
+                          channel.name === 'calendar-events' &&
+                          channel.type === 'GUILD_TEXT'
+                        ) {
+                          announceChannel = channel;
+                          break;
+                        }
+                    }
+                    if (!announceChannel) continue;
+                    announceChannel.send({
+                      embeds: [
+                        {
+                          color: 2086281,
+                          thumbnail: {
+                            url: 'https://www.leeds.ac.uk/site/custom_scripts/campus_map/imgs/icons/loading.png',
+                          },
+                          author: {
+                            name: 'Leeds Timetable Bot',
+                            icon_url:
+                              'https://www.leeds.ac.uk/site/custom_scripts/campus_map/imgs/icons/loading.png',
+                          },
+                          fields: [
+                            {
+                              name: `${Intl.DateTimeFormat('en', {
+                                hour12: false,
+                                timeStyle: 'short',
+                              }).format(start)} - ${moduleName}`,
+                              value: dedent`
+                              > ${activityName} - **${type} ${
+                                addInfo2.includes('https')
+                                  ? '(Virtual)'
+                                  : '(In Person)'
+                              }** 
+                              > ${addInfo} ${'\u200b'}
+                              > ${
+                                addInfo2.includes('https')
+                                  ? addInfo2
+                                  : location
+                              }
+                              `,
+                            },
+                          ],
+                        },
+                      ],
+                    });
+                  }
+
+                task.destroy();
+              }
+            );
           });
         }
       });
