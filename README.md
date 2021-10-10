@@ -1,4 +1,4 @@
-# Uni of Leeds Calendar Announce Bot [WIP]
+# Uni of Leeds Calendar Announce Bot
 This Discord bot fetches UoL modules and their timetables. Servers can subscribe to specific modules for daily timetable announcements, optional per event reminders available.
 
 Bot automatically fetches modules on startup / every 1st of September, and will fetch the timetables for each module daily.

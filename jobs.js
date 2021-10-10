@@ -29,7 +29,7 @@ async function announceTimetable() {
     let evtDict = {};
     for (let moduleID of subscription.modules) {
       for (let [evtName, evt] of Object.entries(
-        global.events[moduleID.substr(0, moduleID.length - 2)]
+        global.events[moduleID.substr(0, moduleID.length - 2)] ?? {}
       ))
         evtDict[evtName] = evt;
     }
@@ -60,12 +60,16 @@ async function announceTimetable() {
     let fields = [];
     for (let evt of evts) {
       fields.push({
-        name: `${evt.start.toLocaleTimeString()} - ${evt.moduleName}`,
+        name: `${Intl.DateTimeFormat('en', {
+          hour12: false,
+          timeStyle: 'short',
+        }).format(evt.start)} - ${evt.moduleName}`,
         value: dedent`
-        > ${evt.activityName} - **${evt.type}**
-        > ${evt.location}
+        > ${evt.activityName} - **${evt.type} ${
+          evt.addInfo2.includes('https') ? '(Virtual)' : '(In Person)'
+        }** 
         > ${evt.addInfo} ${'\u200b'}
-        > ${evt.addInfo2} ${'\u200b'}
+        > ${evt.addInfo2.includes('https') ? evt.addInfo2 : evt.location}
         `,
       });
     }
@@ -81,7 +85,10 @@ async function announceTimetable() {
           'https://www.leeds.ac.uk/site/custom_scripts/campus_map/imgs/icons/loading.png',
         url: url,
       },
-      fields,
+      fields:
+        fields.length > 0
+          ? fields
+          : [{ name: 'No events today!', value: '\u200b' }],
     };
 
     // announce events
